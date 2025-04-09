@@ -44,8 +44,57 @@ echo call "%%VENV_PATH%%\Scripts\activate"
 echo echo Virtual environment activated.
 echo cmd /k
 ) > activate_env.bat
-
 echo Setup complete. Use 'activate_env.bat' to activate the virtual environment.
+
+:: Generate the update_deps.bat file
+echo Generating update_deps.bat...
+(
+echo @echo off
+echo setlocal
+echo.
+echo :: Use the virtual environment's pip directly
+echo set VENV_NAME=%VENV_NAME%
+echo echo Updating dependencies from requirements.txt...
+echo call "%%~dp0%%VENV_NAME%%\Scripts\pip" install -r requirements.txt --upgrade
+echo.
+echo echo Dependencies updated successfully.
+echo endlocal
+) > update_deps.bat
+
+:: Generate the clean.bat file
+echo Generating clean.bat...
+(
+echo @echo off
+echo setlocal
+echo.
+echo echo This will clean temporary files and cached data.
+echo set /p CONFIRM="Are you sure you want to continue? ^(y/n^): "
+echo.
+echo if /i "%%CONFIRM%%"=="y" ^(
+echo     echo Cleaning project directories...
+echo.    
+echo     :: Clean Python cache files
+echo     del /s /q *.pyc
+echo     rmdir /s /q __pycache__ 2^>nul
+echo.    
+echo     :: Clean output directories but leave the folders
+echo     del /s /q generate_output\*
+echo     del /s /q training_output\*
+echo.    
+echo     echo Cleanup complete.
+echo ^) else ^(
+echo     echo Cleanup cancelled.
+echo ^)
+echo.
+echo endlocal
+) > clean.bat
+
+echo Setup complete. Additional utility scripts created: update_deps.bat and clean.bat
+
+:: Install dependencies from requirements.txt
+echo Installing dependencies from requirements.txt...
+call "%VENV_NAME%\Scripts\activate" && pip install -r requirements.txt
+echo Dependencies installed successfully.
 
 :: Call activate_env.bat to activate the virtual environment
 echo Activating the virtual environment...
