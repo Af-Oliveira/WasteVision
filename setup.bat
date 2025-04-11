@@ -31,5 +31,3 @@ if exist "%PYTHON_PATH%" (
 )
 
 :end
-echo Setup completed.
-pause

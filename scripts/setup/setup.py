@@ -86,9 +86,6 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_dir = os.path.abspath(os.path.join(script_dir, "../../"))
     workon_home = os.path.join(project_dir, "envs")
-
-    os.environ["WORKON_HOME"] = workon_home
-    
     
      # Create workon_home directory if it doesn't exist
     Path(workon_home).mkdir(parents=True, exist_ok=True)
