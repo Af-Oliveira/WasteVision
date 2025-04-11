@@ -1,5 +1,0 @@
-ultralytics
-tqdm
-torch
-torchvision
-matplotlib

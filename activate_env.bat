@@ -2,76 +2,80 @@
 setlocal enabledelayedexpansion
 cd %~dp0
 
+:: Set environment variables
+set "WORKON_HOME=C:\Users\afons\Documents\Work\PESTI\WasteVision\envs"
+
 echo Select the virtual environment to activate:
 echo 1. YOLO Environment
-echo 2. ViT Environment
+echo 2. VIT Environment
 echo 3. SSD Environment
-echo 4. Fast R-CNN Environment
+echo 4. FAST-RCC Environment
+echo 5. Exit
 
-set COUNTER=4
-set CHOICE_OPTIONS=1234
-
-rem Read custom_venvs.txt and generate options dynamically
-if exist "C:\Users\afons\Documents\Unv\PESTI\WasteVision\envs\custom_venvs.txt" (
-  for /f "tokens=*" %%i in ('type "C:\Users\afons\Documents\Unv\PESTI\WasteVision\envs\custom_venvs.txt"') do (
-    set /a COUNTER+=1
-    echo !COUNTER!. Custom Environment: %%i
-    set CHOICE_OPTIONS=!CHOICE_OPTIONS!!COUNTER!
-  )
-)
-
-set /a ADD_CUSTOM_OPTION=COUNTER+1
-set /a EXIT_OPTION=COUNTER+2
-echo !ADD_CUSTOM_OPTION!. Add Custom Venv
-echo !EXIT_OPTION!. Exit
-set CHOICE_OPTIONS=!CHOICE_OPTIONS!!ADD_CUSTOM_OPTION!!EXIT_OPTION!
-
-choice /c !CHOICE_OPTIONS!AB /n /m "Enter your choice: (1-!EXIT_OPTION!, !ADD_CUSTOM_OPTION! for Add, !EXIT_OPTION! for Exit)"
+choice /c 12345 /n /m "Enter your choice (1-5): "
 set CHOICE=%errorlevel%
 
 if %CHOICE%==1 (
-  set VENV_PATH=wastevision/wv-venv_yolo
-  goto activate
-)
-if %CHOICE%==2 (
-  set VENV_PATH=wastevision/wv-venv_vit
-  goto activate
-)
-if %CHOICE%==3 (
-  set VENV_PATH=wastevision/wv-venv_ssd
-  goto activate
-)
-if %CHOICE%==4 (
-  set VENV_PATH=wastevision/wv-venv_fast-rcc
-  goto activate
-)
-
-set INDEX=4
-if exist "C:\Users\afons\Documents\Unv\PESTI\WasteVision\envs\custom_venvs.txt" (
-  for /f "tokens=*" %%j in ('type "C:\Users\afons\Documents\Unv\PESTI\WasteVision\envs\custom_venvs.txt"') do (
-    set /a INDEX+=1
-    if %CHOICE%==!INDEX! (
-      set VENV_PATH=%%j
-      goto activate
+    echo Activating wastevision/wv-venv_yolo...
+    if exist "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_yolo\Scripts\activate.bat" (
+        call "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_yolo\Scripts\activate.bat"
+        echo [SUCCESS] Virtual environment wastevision/wv-venv_yolo activated.
+        cmd /k
+        goto :EOF
+    ) else (
+        echo [ERROR] Environment wastevision/wv-venv_yolo not found at C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_yolo
+        pause
+        goto :EOF
     )
-  )
 )
 
-if %CHOICE%==!ADD_CUSTOM_OPTION! (
-  set /p VENV_PATH="Enter the custom path to the virtual environment: "
-  set /p NEW_VENV_NAME="Enter a name for the environment: "
-  if not defined NEW_VENV_NAME set NEW_VENV_NAME=%VENV_PATH%
-  echo %NEW_VENV_NAME% >> "C:\Users\afons\Documents\Unv\PESTI\WasteVision\envs\custom_venvs.txt"
-  set VENV_PATH=%NEW_VENV_NAME%
-  goto activate
-)
-if %CHOICE%==!EXIT_OPTION! (
-  echo Exiting...
-  exit /b
+if %CHOICE%==2 (
+    echo Activating wastevision/wv-venv_vit...
+    if exist "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_vit\Scripts\activate.bat" (
+        call "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_vit\Scripts\activate.bat"
+        echo [SUCCESS] Virtual environment wastevision/wv-venv_vit activated.
+        cmd /k
+        goto :EOF
+    ) else (
+        echo [ERROR] Environment wastevision/wv-venv_vit not found at C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_vit
+        pause
+        goto :EOF
+    )
 )
 
-:activate
-echo Activating virtual environment %VENV_PATH%...
-call workon %VENV_PATH%
-echo Virtual environment activated.
-cmd /k
+if %CHOICE%==3 (
+    echo Activating wastevision/wv-venv_ssd...
+    if exist "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_ssd\Scripts\activate.bat" (
+        call "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_ssd\Scripts\activate.bat"
+        echo [SUCCESS] Virtual environment wastevision/wv-venv_ssd activated.
+        cmd /k
+        goto :EOF
+    ) else (
+        echo [ERROR] Environment wastevision/wv-venv_ssd not found at C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_ssd
+        pause
+        goto :EOF
+    )
+)
+
+if %CHOICE%==4 (
+    echo Activating wastevision/wv-venv_fast-rcc...
+    if exist "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_fast-rcc\Scripts\activate.bat" (
+        call "C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_fast-rcc\Scripts\activate.bat"
+        echo [SUCCESS] Virtual environment wastevision/wv-venv_fast-rcc activated.
+        cmd /k
+        goto :EOF
+    ) else (
+        echo [ERROR] Environment wastevision/wv-venv_fast-rcc not found at C:\Users\afons\Documents\Work\PESTI\WasteVision\envs\wastevision\wv-venv_fast-rcc
+        pause
+        goto :EOF
+    )
+)
+
+if %CHOICE%==5 (
+    echo Exiting...
+    exit /b
+)
+
+echo Invalid choice: %CHOICE%
+pause
+exit /b

@@ -1,0 +1,23 @@
+# Ignore virtual environments
+envs/
+
+# Ignore utility batch scripts
+activate_env.bat
+clean_project.bat
+update_deps.bat
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore VS Code settings and cache
+.vscode/
+*.cache
+
+# Ignore logs and temporary files
+*.log
+*.tmp
