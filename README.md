@@ -19,7 +19,7 @@ This repository serves as a comprehensive guide for training and deploying **YOL
   
 - **Instance Segmentation**: Extends object detection by generating **precise pixel masks** for each detected object, enabling more accurate shape and contour recognition.
 
-The scripts allow you to train custom models on your own datasets and generate both **visual outputs** (e.g., annotated images with boxes and masks) and **text-based results** (e.g., JSON or CSV format) for use in real-time systems, analytics, or integration into larger applications.
+The scripts allow you to train custom models on your own datasets and generate both **visual outputs** (e.g., annotated images with boxes and masks) and **text-based results**  for use in real-time systems, analytics, or integration into larger applications.
 
 ## Developed by
 
