@@ -1,10 +1,17 @@
 # Ignore virtual environments
-envs/
+venvs/
+dataset/
+third_party/
+input/
+output/
+dvcline/
+.dvc/
 
-# Ignore utility batch scripts
+# Ignore utility scripts
 activate_env.bat
 clean_project.bat
-update_deps.bat
+activate_env.sh
+clean_project.sh
 
 # Ignore Python cache files
 __pycache__/
