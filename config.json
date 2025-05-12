@@ -1,0 +1,14 @@
+{
+    "venv_name":"wv-venv",
+    "venv_suffix": [
+        ["yolov8", "3.11" ]
+    ],
+    "directory_list": [
+        "./dataset/test",
+        "./dataset/valid",
+        "./dataset/train",
+        "./third_party",
+        "./input",
+        "./output"
+    ]
+}
