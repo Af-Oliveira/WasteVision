@@ -1,13 +1,20 @@
+"""
+input.py - Robust console input handler for WasteVision
+
+This module provides the Input class, which enables flexible and validated user input
+from the console. It supports type checking, custom validation, range and pattern
+constraints, default values, menu-style option selection, and more. This utility
+ensures consistent and user-friendly input handling throughout the project.
+"""
 
 import re
 from typing import Any, Callable, Optional, Union, Type, List, Tuple
 from pathlib import Path
 
-
 class Input:
     """
     A robust console input handler with validation and type checking.
-    
+
     Features:
     - Type validation (int, float, str, bool, etc.)
     - Custom validation functions
@@ -23,9 +30,9 @@ class Input:
     def __init__(self, prompt: str = ""):
         """
         Initialize the Input handler.
-        
+
         Args:
-            prompt: The prompt to display when asking for input
+            prompt: The prompt to display when asking for input.
         """
         self.prompt = prompt
         self._input_type = str  # Default type
@@ -39,40 +46,70 @@ class Input:
         self._multiple = False  # Whether to allow multiple selections
 
     def type(self, input_type: Type) -> 'Input':
-        """Set the expected input type."""
+        """
+        Set the expected input type.
+
+        Args:
+            input_type: The Python type to cast input to (e.g., int, float, str, bool, Path).
+
+        Returns:
+            self (for method chaining)
+        """
         self._input_type = input_type
         return self
-    
+
     def path(self, path_type: Optional[str] = None) -> 'Input':
         """
-        Configure the input to expect a path.
-        
+        Configure the input to expect a file or directory path.
+
         Args:
-            path_type: 'file' for files only, 'dir' for directories only, None for any path
+            path_type: 'file' for files only, 'dir' for directories only, None for any path.
+
+        Returns:
+            self (for method chaining)
         """
         self._input_type = Path
         self._path_type = path_type
         return self
 
     def default(self, default_value: Any) -> 'Input':
-        """Set a default value that will be returned if input is empty."""
+        """
+        Set a default value that will be returned if input is empty.
+
+        Args:
+            default_value: The value to use if the user provides no input.
+
+        Returns:
+            self (for method chaining)
+        """
         self._default = default_value
         self._allow_empty = True
         return self
 
     def allow_empty(self, allow: bool = True) -> 'Input':
-        """Set whether empty input is allowed."""
+        """
+        Set whether empty input is allowed.
+
+        Args:
+            allow: If True, empty input is accepted.
+
+        Returns:
+            self (for method chaining)
+        """
         self._allow_empty = allow
         return self
 
     def options(self, options: List[Any], case_sensitive: bool = False, multiple: bool = False) -> 'Input':
         """
         Set valid options for the input (creates a menu-like selection).
-        
+
         Args:
-            options: List of valid options
-            case_sensitive: Whether option comparison should be case sensitive
-            multiple: Whether to allow multiple selections
+            options: List of valid options.
+            case_sensitive: Whether option comparison should be case sensitive.
+            multiple: Whether to allow multiple selections.
+
+        Returns:
+            self (for method chaining)
         """
         self._options = options
         self._case_sensitive = case_sensitive
@@ -80,58 +117,97 @@ class Input:
         return self
 
     def multiple(self, allow_multiple: bool = True) -> 'Input':
-        """Set whether multiple selections are allowed (only applies when options are set)."""
+        """
+        Set whether multiple selections are allowed (only applies when options are set).
+
+        Args:
+            allow_multiple: If True, allow multiple selections.
+
+        Returns:
+            self (for method chaining)
+        """
         self._multiple = allow_multiple
         return self
 
     def validate(self, validator: Callable[[Any], Tuple[bool, str]]) -> 'Input':
         """
         Add a custom validation function.
-        
-        The validator should return a tuple of (is_valid, error_message)
+
+        Args:
+            validator: A function that takes the input value and returns (is_valid, error_message).
+
+        Returns:
+            self (for method chaining)
         """
         self._validators.append(validator)
         return self
 
-    def range(self, min_val: Optional[Union[int, float]] = None, 
+    def range(self, min_val: Optional[Union[int, float]] = None,
               max_val: Optional[Union[int, float]] = None) -> 'Input':
-        """Validate that a number falls within a specified range."""
+        """
+        Validate that a number falls within a specified range.
+
+        Args:
+            min_val: Minimum allowed value (inclusive).
+            max_val: Maximum allowed value (inclusive).
+
+        Returns:
+            self (for method chaining)
+        """
         def number_range_validator(value):
-            if min_val is not None and value < min_val:
+            if (min_val is not None and value < min_val):
                 return False, f"Value must be at least {min_val}"
-            if max_val is not None and value > max_val:
+            if (max_val is not None and value > max_val):
                 return False, f"Value must be at most {max_val}"
             return True, ""
-        
+
         self.validate(lambda x: number_range_validator(x))
         return self
 
-    def pattern(self, regex_pattern: str, 
+    def pattern(self, regex_pattern: str,
                 error_msg: str = "Input doesn't match required pattern") -> 'Input':
-        """Validate that a string matches a regex pattern."""
+        """
+        Validate that a string matches a regex pattern.
+
+        Args:
+            regex_pattern: The regular expression pattern to match.
+            error_msg: Custom error message if pattern does not match.
+
+        Returns:
+            self (for method chaining)
+        """
         def pattern_validator(value):
             if not re.match(regex_pattern, str(value)):
                 return False, error_msg
             return True, ""
-        
+
         self.validate(pattern_validator)
         return self
 
     def error_message(self, message: str) -> 'Input':
-        """Set a custom error message for validation failures."""
+        """
+        Set a custom error message for validation failures.
+
+        Args:
+            message: The error message to display.
+
+        Returns:
+            self (for method chaining)
+        """
         self._error_msg = message
         return self
 
     def get_input(self):
-        """Get input from the user with validation.
-        
+        """
+        Get input from the user with validation.
+
         Returns:
             The validated user input converted to the appropriate type.
             For multiple selections, returns a list of selected options.
-            
+
         Raises:
-            KeyboardInterrupt: If user cancels input with Ctrl+C
-            EOFError: If user cancels input with Ctrl+D (Unix) or Ctrl+Z+Enter (Windows)
+            KeyboardInterrupt: If user cancels input with Ctrl+C.
+            EOFError: If user cancels input with Ctrl+D (Unix) or Ctrl+Z+Enter (Windows).
         """
         while True:
             try:
@@ -144,7 +220,7 @@ class Input:
                 prompt += ": "
 
                 raw_input = input(prompt).strip()
-                
+
                 # Handle empty input
                 if not raw_input:
                     if self._allow_empty:
@@ -156,7 +232,7 @@ class Input:
                 if self._multiple and self._options:
                     selections = [s.strip() for s in raw_input.split(',')]
                     selected_values = []
-                    
+
                     for selection in selections:
                         # Convert type if needed
                         try:
@@ -167,7 +243,7 @@ class Input:
                         except ValueError:
                             print(f"Invalid {self._input_type.__name__} value in selection.")
                             break
-                            
+
                         # Check against options
                         if not self._case_sensitive and isinstance(value, str):
                             value_lower = value.lower()
@@ -186,10 +262,10 @@ class Input:
                     else:
                         # All selections were valid
                         return selected_values
-                    
+
                     continue
 
-                # Single selection processing (original code)
+                # Single selection processing
                 try:
                     if self._input_type is bool:
                         value = self._parse_bool(raw_input)
@@ -240,10 +316,21 @@ class Input:
                 raise
 
     def _parse_bool(self, value: str) -> bool:
-        """Parse boolean values with flexible input options."""
+        """
+        Parse boolean values with flexible input options.
+
+        Args:
+            value: The input string to parse.
+
+        Returns:
+            bool: The parsed boolean value.
+
+        Raises:
+            ValueError: If the input cannot be interpreted as a boolean.
+        """
         true_values = ['true', 't', 'yes', 'y', '1']
         false_values = ['false', 'f', 'no', 'n', '0']
-        
+
         lower_val = value.lower()
         if lower_val in true_values:
             return True
@@ -252,24 +339,54 @@ class Input:
         raise ValueError(f"Cannot convert '{value}' to boolean")
 
     @classmethod
-    def integer(cls, prompt: str = "", 
-                min_val: Optional[int] = None, 
+    def integer(cls, prompt: str = "",
+                min_val: Optional[int] = None,
                 max_val: Optional[int] = None) -> int:
-        """Convenience method for getting an integer with range validation."""
+        """
+        Convenience method for getting an integer with range validation.
+
+        Args:
+            prompt: The prompt to display.
+            min_val: Minimum allowed value.
+            max_val: Maximum allowed value.
+
+        Returns:
+            int: The validated integer input.
+        """
         return cls(prompt).type(int).range(min_val, max_val).get_input()
 
     @classmethod
-    def float(cls, prompt: str = "", 
-              min_val: Optional[float] = None, 
+    def float(cls, prompt: str = "",
+              min_val: Optional[float] = None,
               max_val: Optional[float] = None) -> float:
-        """Convenience method for getting a float with range validation."""
+        """
+        Convenience method for getting a float with range validation.
+
+        Args:
+            prompt: The prompt to display.
+            min_val: Minimum allowed value.
+            max_val: Maximum allowed value.
+
+        Returns:
+            float: The validated float input.
+        """
         return cls(prompt).type(float).range(min_val, max_val).get_input()
 
     @classmethod
-    def string(cls, prompt: str = "", 
+    def string(cls, prompt: str = "",
                pattern: Optional[str] = None,
                error_msg: Optional[str] = None) -> str:
-        """Convenience method for getting a string with optional pattern validation."""
+        """
+        Convenience method for getting a string with optional pattern validation.
+
+        Args:
+            prompt: The prompt to display.
+            pattern: Optional regex pattern to validate input.
+            error_msg: Custom error message if pattern does not match.
+
+        Returns:
+            str: The validated string input.
+        """
         input_obj = cls(prompt).type(str)
         if pattern:
             if error_msg:
@@ -280,20 +397,48 @@ class Input:
 
     @classmethod
     def boolean(cls, prompt: str = "") -> bool:
-        """Convenience method for getting a boolean (accepts yes/no, true/false, etc.)."""
+        """
+        Convenience method for getting a boolean (accepts yes/no, true/false, etc.).
+
+        Args:
+            prompt: The prompt to display.
+
+        Returns:
+            bool: The validated boolean input.
+        """
         return cls(prompt).type(bool).get_input()
 
     @classmethod
-    def choice(cls, prompt: str = "", 
+    def choice(cls, prompt: str = "",
                options: List[Any] = [],
                case_sensitive: bool = False,
                multiple: bool = False) -> Any:
-        """Convenience method for selecting from a list of options."""
+        """
+        Convenience method for selecting from a list of options.
+
+        Args:
+            prompt: The prompt to display.
+            options: List of valid options.
+            case_sensitive: Whether option comparison should be case sensitive.
+            multiple: Whether to allow multiple selections.
+
+        Returns:
+            The selected option(s).
+        """
         return cls(prompt).options(options, case_sensitive, multiple).get_input()
-    
+
     @classmethod
     def file_path(cls, prompt: str = "", must_exist: bool = True) -> Path:
-        """Convenience method for getting a file path."""
+        """
+        Convenience method for getting a file path.
+
+        Args:
+            prompt: The prompt to display.
+            must_exist: If True, require the file to exist.
+
+        Returns:
+            Path: The validated file path.
+        """
         input_obj = cls(prompt).path('file')
         if must_exist:
             input_obj.validate(lambda p: (p.exists() and p.is_file(), "File must exist"))
@@ -301,7 +446,16 @@ class Input:
 
     @classmethod
     def dir_path(cls, prompt: str = "", must_exist: bool = True) -> Path:
-        """Convenience method for getting a directory path."""
+        """
+        Convenience method for getting a directory path.
+
+        Args:
+            prompt: The prompt to display.
+            must_exist: If True, require the directory to exist.
+
+        Returns:
+            Path: The validated directory path.
+        """
         input_obj = cls(prompt).path('dir')
         if must_exist:
             input_obj.validate(lambda p: (p.exists() and p.is_dir(), "Directory must exist"))

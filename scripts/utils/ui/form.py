@@ -1,12 +1,39 @@
+"""
+form.py - Dynamic Tkinter form generator for WasteVision
+
+This module provides the FormGenerator class, which allows you to build
+and display interactive forms using Tkinter. It supports various input types,
+validation, default values, option selection (single and multiple), and
+integration with the project's Input class for consistent user input handling.
+"""
+
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-from scripts.utils.ui.input import Input  # You need to provide this class
-
+from scripts.utils.ui.input import Input
 
 class FormGenerator:
+    """
+    Generates and manages a dynamic Tkinter form for user input.
+
+    Features:
+    - Add multiple input fields with validation and default values
+    - Supports string, boolean, path, and option selection inputs
+    - Handles single and multiple selections
+    - Integrates with the Input class for consistent validation
+    - Returns user input as a dictionary or None if cancelled
+    """
+
     def __init__(self, title: str = "Form", window_width: int = 700, window_height: int = 600):
+        """
+        Initialize the form generator window.
+
+        Args:
+            title: The window title.
+            window_width: Width of the form window.
+            window_height: Height of the form window.
+        """
         self.title = title
         self.window_width = window_width
         self.window_height = window_height
@@ -17,19 +44,37 @@ class FormGenerator:
         self.root.title(self.title)
         self.root.geometry(f"{self.window_width}x{self.window_height}")
         self.root.resizable(False, False)
-        # Set protocol for window close button (X)
+        # Handle window close (X) button
         self.root.protocol("WM_DELETE_WINDOW", self._on_cancel)
 
     def add_input(self, input_spec: Input) -> 'FormGenerator':
+        """
+        Add an input specification to the form.
+
+        Args:
+            input_spec: An Input object describing the input field.
+
+        Returns:
+            self (for method chaining)
+        """
         self.input_specs.append(input_spec)
         return self
 
     def show(self) -> Optional[Dict[str, Any]]:
+        """
+        Display the form and start the Tkinter main loop.
+
+        Returns:
+            dict: User input values if submitted, or None if cancelled.
+        """
         self._create_form()
         self.root.mainloop()
         return self.result
 
     def _create_form(self):
+        """
+        Build the form UI with all input fields and action buttons.
+        """
         frame = ttk.Frame(self.root, padding=20)
         frame.pack(fill="both", expand=True)
 
@@ -45,18 +90,27 @@ class FormGenerator:
         ttk.Button(button_frame, text="Cancel", width=20, command=self._on_cancel).pack(side="left", padx=10)
 
     def _create_input_element(self, parent, spec: Input):
+        """
+        Create and add a single input widget to the form based on the Input spec.
+
+        Args:
+            parent: The parent Tkinter widget.
+            spec: The Input specification for this field.
+        """
         container = ttk.LabelFrame(parent, text=spec.prompt, padding=(10, 5))
         container.pack(fill="x", pady=8)
 
         widget = None
 
         if spec._input_type is bool:
+            # Boolean as Yes/No dropdown
             var = tk.StringVar(value="Yes")
             widget = ttk.Combobox(container, values=["Yes", "No"], textvariable=var, state="readonly")
             widget.pack(fill="x", padx=5)
             self.input_widgets[spec.prompt] = var
 
         elif spec._options is not None:
+            # Option selection (single or multiple)
             if spec._multiple:
                 listbox = tk.Listbox(container, selectmode=tk.MULTIPLE, height=min(10, len(spec._options)))
                 for item in spec._options:
@@ -70,6 +124,7 @@ class FormGenerator:
                 self.input_widgets[spec.prompt] = var
 
         elif spec._input_type is Path:
+            # File or directory path input with browse button
             path_var = tk.StringVar(value=str(spec._default or ""))
             path_frame = ttk.Frame(container)
             path_frame.pack(fill="x", padx=5)
@@ -90,12 +145,16 @@ class FormGenerator:
             self.input_widgets[spec.prompt] = path_var
 
         else:
+            # Default: string input
             var = tk.StringVar(value=str(spec._default or ""))
             entry = ttk.Entry(container, textvariable=var)
             entry.pack(fill="x", padx=5)
             self.input_widgets[spec.prompt] = var
 
     def _on_submit(self):
+        """
+        Handle the submit button: validate inputs and close the form if valid.
+        """
         values = {}
         for spec in self.input_specs:
             widget = self.input_widgets[spec.prompt]
@@ -116,14 +175,29 @@ class FormGenerator:
             self._close_window()
 
     def _on_cancel(self):
+        """
+        Handle the cancel button or window close event.
+        """
         self.result = None
         self._close_window()
 
     def _close_window(self):
+        """
+        Close and destroy the Tkinter form window.
+        """
         self.root.quit()
         self.root.destroy()
 
     def _validate_inputs(self, values: Dict[str, Any]) -> Dict[str, str]:
+        """
+        Validate all input values using the Input specs.
+
+        Args:
+            values: Dictionary of raw input values keyed by prompt.
+
+        Returns:
+            dict: Errors found, keyed by prompt.
+        """
         errors = {}
         for spec in self.input_specs:
             value = values.get(spec.prompt, "")
@@ -155,6 +229,15 @@ class FormGenerator:
         return errors
 
     def _convert_values(self, values: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Convert raw input values to their final types using the Input specs.
+
+        Args:
+            values: Dictionary of raw input values keyed by prompt.
+
+        Returns:
+            dict: Converted values keyed by prompt.
+        """
         result = {}
         for spec in self.input_specs:
             value = values.get(spec.prompt)
@@ -169,6 +252,12 @@ class FormGenerator:
         return result
 
     def _show_errors(self, errors: Dict[str, str]):
+        """
+        Display validation errors in a message box.
+
+        Args:
+            errors: Dictionary of error messages keyed by prompt.
+        """
         message = "Corrija os seguintes erros:\n"
         message += "\n".join(f"- {key}: {msg}" for key, msg in errors.items())
         messagebox.showerror("Erros de Validação", message)

@@ -1,7 +1,14 @@
 #!/bin/bash
+
+# -----------------------------------------------------------------------------
+# WasteVision Project - Linux/Mac Setup Script
+# This script locates a Python interpreter and runs the main setup routine.
+# It automates environment and directory creation for the project.
+# -----------------------------------------------------------------------------
+
 echo "Running Python setup script..."
 
-# Check for various Python executable names
+# Try to find a Python executable by checking common names
 for py in python python3 py; do
     if command -v $py > /dev/null 2>&1; then
         echo "Found Python ($py)"
@@ -10,13 +17,15 @@ for py in python python3 py; do
     fi
 done
 
+# If no Python executable was found, print a message and try to list installed versions
 echo "Python not found in PATH. Installed Python versions:"
-# Try to list Python versions (works on some systems)
 ls /usr/bin/python* 2>/dev/null || echo "(Could not list Python versions)"
 
+# Prompt the user to manually enter the full path to their Python executable
 echo "Python not found. Please specify the full path to your Python executable."
 read -p "Enter full path to python executable: " PYTHON_PATH
 
+# Check if the provided path is executable
 if [ -x "$PYTHON_PATH" ]; then
     echo "Running setup.py with specified Python executable..."
     "$PYTHON_PATH" -m scripts.setup.setup

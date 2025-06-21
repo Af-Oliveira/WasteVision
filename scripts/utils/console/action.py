@@ -1,9 +1,29 @@
+"""
+action.py - Action execution system for WasteVision console menus
+
+This module provides two classes for handling menu actions:
+- Action: Executes functions from imported modules
+- FunctionAction: Executes direct function references
+
+These classes are used throughout the project to create interactive menus
+and handle user commands in a consistent way. They support argument passing,
+error handling, and detailed execution feedback.
+"""
+
 import importlib
 import sys
 from typing import Any, Optional, Callable, Dict, List
 
 
 class Action:
+    """
+    Represents an executable action that can be performed by a menu option.
+    
+    This class handles dynamic module imports and function execution, with
+    comprehensive error handling and debugging support. It is primarily used
+    to create menu options that execute specific Python modules/scripts.
+    """
+
     def __init__(
         self,
         script_path: str,
@@ -12,13 +32,13 @@ class Action:
         kwargs: Optional[Dict[str, Any]] = None
     ):
         """
-        Represents an executable action that can be performed by a menu option.
+        Initialize an action with a script path and execution parameters.
         
         Args:
-            script_path: Path to the Python script/module (e.g., "scripts.process_data")
-            entry_function: Name of the function to call (default "run")
-            args: Positional arguments for the entry function
-            kwargs: Keyword arguments for the entry function
+            script_path: Dot-notation path to the Python module (e.g., "scripts.process_data")
+            entry_function: Name of the function to call within the module (defaults to "run")
+            args: List of positional arguments to pass to the entry function
+            kwargs: Dictionary of keyword arguments to pass to the entry function
         """
         self.script_path = script_path
         self.entry_function = entry_function
@@ -29,13 +49,19 @@ class Action:
         """
         Execute the associated script's entry function with provided arguments.
         
+        The method will:
+        1. Import the specified module
+        2. Verify the entry function exists
+        3. Execute the function with provided arguments
+        4. Handle and report any errors that occur
+        
         Returns:
-            The return value of the called function.
+            Any: The return value from the executed function
             
         Raises:
-            ImportError: If the module cannot be imported
-            AttributeError: If the function doesn't exist in the module
-            Exception: Any exception raised by the called function
+            ImportError: If the specified module cannot be imported
+            AttributeError: If the entry function doesn't exist in the module
+            Exception: Any exception raised during function execution
         """
         try:
             module = importlib.import_module(self.script_path)
@@ -62,7 +88,13 @@ class Action:
             raise
 
     def __str__(self) -> str:
-        """String representation for debugging."""
+        """
+        Create a string representation of the Action for debugging.
+        
+        Returns:
+            str: A formatted string showing the action's configuration
+                 (e.g., "Action(scripts.process_data.run(arg1, kwarg1=value1))")
+        """
         args_str = ', '.join(map(str, self.args))
         kwargs_str = ', '.join(f"{k}={v}" for k, v in self.kwargs.items())
         all_args = ', '.join(filter(None, [args_str, kwargs_str]))
@@ -70,23 +102,37 @@ class Action:
 
 
 class FunctionAction(Action):
-    """Action that executes a direct function call rather than importing a module."""
+    """
+    Specialized Action that executes a direct function reference.
+    
+    This class provides a simpler alternative to Action when you already
+    have a reference to the function you want to execute, rather than
+    importing it from a module.
+    """
     
     def __init__(self, func: Callable, args: Optional[List[Any]] = None, kwargs: Optional[Dict[str, Any]] = None):
         """
-        Initialize with a direct function reference.
+        Initialize with a direct function reference and its arguments.
         
         Args:
-            func: The function to call
-            args: Positional arguments for the function
-            kwargs: Keyword arguments for the function
+            func: The function to execute when the action is triggered
+            args: List of positional arguments to pass to the function
+            kwargs: Dictionary of keyword arguments to pass to the function
         """
         self.func = func
         self.args = args or []
         self.kwargs = kwargs or {}
     
     def execute(self) -> Any:
-        """Execute the function directly."""
+        """
+        Execute the stored function with its arguments.
+        
+        Returns:
+            Any: The return value from the executed function
+            
+        Raises:
+            Exception: Any exception raised during function execution
+        """
         try:
             return self.func(*self.args, **self.kwargs)
         except Exception as e:

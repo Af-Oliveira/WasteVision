@@ -1,3 +1,17 @@
+"""
+clean_script.py - Project cleanup script generator for WasteVision
+
+This module creates platform-specific cleanup scripts that remove:
+- Python cache files (__pycache__, .pyc, .pyo)
+- Jupyter notebook checkpoints
+- VS Code cache files
+- Training output files and directories
+- Other temporary files generated during development
+
+The script handles both Windows (.bat) and Unix-like (.sh) systems
+and ensures proper line endings and permissions for each platform.
+"""
+
 import os
 from pathlib import Path
 
@@ -7,24 +21,38 @@ def create_clean_script(
     is_windows: bool = False
 ) -> bool:
     """
-    Creates a script to clean project cache and temporary files.
-    Creates .bat for Windows or .sh for Mac/Linux.
+    Creates a platform-specific script to clean project cache and temporary files.
+
+    This function generates either a Windows batch file (.bat) or a Unix shell 
+    script (.sh) that removes various temporary files and directories commonly
+    generated during Python development and model training.
     
     Args:
-        project_root: Path to project root directory
-        output_path: Where to save the script file
-        is_windows: If True, creates a Windows batch script
+        project_dir: Path to the project root directory where cleanup will occur
+        output_path: Where to save the generated script file (default: clean_project.sh)
+        is_windows: If True, creates a Windows batch script, otherwise Unix shell script
         
     Returns:
-        bool: True if script was created successfully
+        bool: True if script was created successfully, False if any errors occurred
+        
+    Example:
+        ```python
+        create_clean_script(
+            project_dir="C:/MyProject",
+            output_path="cleanup.bat",
+            is_windows=True
+        )
+        ```
     """
     try:
+        # Resolve absolute paths
         project_root = Path(project_dir)
         project_root = project_root.resolve()
         output_path = Path(output_path).resolve()
         
         print(f"Creating clean script at: {output_path}")
 
+        # Generate Windows batch script
         if is_windows:
             content = f"""@echo off
 REM Clean project cache and temporary files
@@ -56,6 +84,7 @@ if exist "{project_root}\\training_output\\*" (
 echo Cleanup complete!
 pause
 """
+        # Generate Unix shell script
         else:
             content = f"""#!/bin/bash
 # Clean project cache and temporary files
@@ -87,12 +116,12 @@ fi
 echo "Cleanup complete!"
 read -p "Press enter to continue..."
 """
-
+        # Write the script with appropriate line endings
         with open(output_path, "w", newline='\n' if not is_windows else '\r\n') as f:
             f.write(content)
         
+        # Make Unix scripts executable
         if not is_windows:
-            # Make the shell script executable
             os.chmod(output_path, 0o755)
         
         print(f"✓ Clean script created at {output_path}")
